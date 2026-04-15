@@ -19,31 +19,32 @@ angular_velocity = RPM * ((2*math.pi)/60)
 # assuming turbine diameter / 2 is rtip (inches)
 r_tip = 2
 # U = angular * radius (convert to m)
-r_tip = 2 * .0254
+r_tip = r_tip * .0254
 # U = blade velocity
 U = angular_velocity * r_tip
+print('Blade Velocity is ' + str(U))
 
-# mdot is GG mass flow rate (kg/s)
-GG_massflow_rate = 0.1985641039
+# ASSUMPTION - ISENTROPIC SPOUTING VELOCITY
+Cp = 1108.853
+Cv = 652.4159975
+GGSpecHeat = Cp
+TurbineInletTemp = 900 # Kelvin
+GGSpecHeatRatio = Cp / Cv
+PR = 6
+C0 = math.sqrt(2 * GGSpecHeat * TurbineInletTemp * (1 - (1/PR)**((GGSpecHeatRatio - 1)/GGSpecHeatRatio)))
+print('Isentropic Spouting Velocity is ' + str(C0))
 
 # specific work J/kg
-spec_work = (total_shaft_power_watts) / (GG_massflow_rate)
+TurbineEfficiency = 0.75 * (1 - ((U/C0 - 0.5) / 0.5)**2)
+actual_spec_work = (TurbineEfficiency * GGSpecHeat * TurbineInletTemp * (1 - (1 / PR)**((GGSpecHeatRatio - 1) / (GGSpecHeatRatio)))) 
+print('Turbine Efficiency is ' + str(TurbineEfficiency))
+print('Actual Specific Work is ' + str(actual_spec_work))
 
-# change in tangential component of absolute velocity of fluid V
-change_in_V = (spec_work) / (U)
+# mdot is GG mass flow rate (kg/s)
+GG_massflow_rate = (total_shaft_power_kW * 1000) / actual_spec_work
+print('GG Mass Flow Rate is ' + str(GG_massflow_rate))
 
-# finding (V1) velocity at the boundary between stator exit and rotor inlet 
-# EVERYTHING BELOW THIS WILL BE UPDATED WITH BETTER ACCURACY, 04/07/26 - UNCERTAIN
-Tknot = 1089
-Pknot_Pa = 1.21e6
-Pexit_Pa = 6.03e5 # update
-spec_heat_ratio = 1.699610378 # reconsider
-Mexhaust_kgmol = 18.215 / 1000
-# mach number of gas at the stator exit
-# ratio of the gas velocity to the local speed of sound at that point
-# isentropic flow assumption 
-M1 = math.sqrt((2)/(spec_heat_ratio - 1) * ((Pknot_Pa / Pexit_Pa)**((spec_heat_ratio - 1)/(spec_heat_ratio)) - 1))
-# static temperature of the gas at the stator exit
-T1 = (Tknot) / ((1) + ((spec_heat_ratio - 1)/(2) * (M1**2)))
-# specific gas constant of your exhaust mixture
-R = 8.314462618 / Mexhaust_kgmol
+# change in swirl velocity - the difference in tangential absolute gas velocity between rotor inlet and rotor exit.
+# ASSUMPTION - NOZZLE IS 95% EFFICIENT
+# ZERO SWIRL AT ROTOR EXIT
+
