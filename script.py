@@ -55,6 +55,7 @@ print('C1: ' + str(C1))
 # nozzle_exit_angle_degrees = math.degrees(math.asin(change_in_C / C1))
  # print('Nozzle Exit Angle: ' + str(nozzle_exit_angle_degrees) + ' degrees')
 print('------------------------------------------------------------------------------------------')
+
 # solves for minimum radius - keeps RPM constant
 while ((change_in_C) / (C1)) > 1:
     r_tip_inches += 0.01
@@ -64,7 +65,6 @@ while ((change_in_C) / (C1)) > 1:
     actual_spec_work = (TurbineEfficiency * GGSpecHeat * TurbineInletTemp * (1 - (1 / PR)**((GGSpecHeatRatio - 1) / (GGSpecHeatRatio))))
     change_in_C = actual_spec_work / U
     C1 = math.sqrt(0.95) * C0
-
 print('Final r_tip inches: ' + str(r_tip_inches))
 print('Final Blade Velocity: ' + str(U))
 print('Final U/C0: ' + str(U/C0))
