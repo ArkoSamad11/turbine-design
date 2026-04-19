@@ -22,16 +22,17 @@ r_tip_inches = 2
 r_tip_meters = r_tip_inches * .0254
 # U = blade velocity
 U = angular_velocity * r_tip_meters
-print('Blade Velocity is ' + str(U))
 
 # ASSUMPTION - ISENTROPIC SPOUTING VELOCITY
-Cp = 1108.853
-Cv = 652.4159975    
-GGSpecHeat = Cp
-TurbineInletTemp = 900 # Kelvin
-GGSpecHeatRatio = Cp / Cv
-PR = 6
-C0 = math.sqrt(2 * GGSpecHeat * TurbineInletTemp * (1 - (1/PR)**((GGSpecHeatRatio - 1)/GGSpecHeatRatio)))
+GGSpecHeat = 8942.8 # J / kg*K
+TurbineInletTemp = 1007.11 # Kelvin
+GGSpecHeatRatio = 1.1351
+TurbineInletPressure = 400 #psi
+TurbineOutletPressure = 380 #psi
+PR = TurbineInletPressure / TurbineOutletPressure # ~ 1.05
+PRNASA = TurbineOutletPressure / TurbineInletPressure
+
+C0 = math.sqrt(2 * GGSpecHeat * TurbineInletTemp * (1 - (PRNASA)**((GGSpecHeatRatio - 1)/GGSpecHeatRatio)))
 print('Isentropic Spouting Velocity is ' + str(C0))
 print('U/C0: ' + str(U/C0))
 
@@ -42,29 +43,29 @@ print('Turbine Efficiency is ' + str(TurbineEfficiency))
 print('Actual Specific Work is ' + str(actual_spec_work))
 
 # mdot is GG mass flow rate (kg/s)
-GG_massflow_rate = (total_shaft_power_watts) / actual_spec_work
+GG_massflow_rate = (total_shaft_power_watts) / (actual_spec_work)
 print('GG Mass Flow Rate is ' + str(GG_massflow_rate))
 
 # change in swirl velocity - the difference in tangential absolute gas velocity between rotor inlet and rotor exit.
 change_in_C = (actual_spec_work) / (U)
 print('Change in C is ' + str(change_in_C))
 # ASSUMPTION - NOZZLE IS 95% EFFICIENT
-C1 = math.sqrt(.95) * C0
-print('C1: ' + str(C1))
+# C1 = math.sqrt(.95) * C0
+# print('C1: ' + str(C1))
 # ZERO SWIRL AT ROTOR EXIT
-# nozzle_exit_angle_degrees = math.degrees(math.asin(change_in_C / C1))
- # print('Nozzle Exit Angle: ' + str(nozzle_exit_angle_degrees) + ' degrees')
+nozzle_exit_angle_degrees = math.degrees(math.asin(change_in_C / C0))
+print('Nozzle Exit Angle: ' + str(nozzle_exit_angle_degrees) + ' degrees')
 print('------------------------------------------------------------------------------------------')
 
 # solves for minimum radius - keeps RPM constant
-while ((change_in_C) / (C1)) > 1:
+"""while ((change_in_C) / (C0)) > 1:
     r_tip_inches += 0.01
     r_tip = r_tip_inches * 0.0254
     U = angular_velocity * r_tip
     TurbineEfficiency = 0.75 * (1 - ((U/C0 - 0.5) / 0.5)**2)
     actual_spec_work = (TurbineEfficiency * GGSpecHeat * TurbineInletTemp * (1 - (1 / PR)**((GGSpecHeatRatio - 1) / (GGSpecHeatRatio))))
     change_in_C = actual_spec_work / U
-    C1 = math.sqrt(0.95) * C0
+   # C1 = math.sqrt(0.95) * C0
 print('Final r_tip inches: ' + str(r_tip_inches))
 print('Final Blade Velocity: ' + str(U))
 print('Final U/C0: ' + str(U/C0))
@@ -72,6 +73,6 @@ print('Final Turbine Efficiency: ' + str(TurbineEfficiency))
 print('Final Actual Specific Work: ' + str(actual_spec_work))
 print('Final GG Mass Flow Rate: ' + str(total_shaft_power_watts / actual_spec_work))
 print('Final Change in C is ' + str(change_in_C))
-print('Final C1: ' + str(C1))
-nozzle_exit_angle = math.degrees(math.asin(change_in_C / C1))
-print('Nozzle Exit Angle: ' + str(nozzle_exit_angle) + ' degrees')
+# print('Final C1: ' + str(C1))
+nozzle_exit_angle = math.degrees(math.asin(change_in_C / C0))
+print('Nozzle Exit Angle: ' + str(nozzle_exit_angle) + ' degrees')"""
